@@ -7,17 +7,17 @@
 erddapDownload(year, month, type, overwrite = FALSE, ...)
 }
 \arguments{
-\item{year}{A numeric string (XXXX) informing the year.}
+\item{year}{A \code{\link[base]{numeric}} or \code{\link[base]{character}} string (YYYY) informing the year.}
 
-\item{month}{A numeric string informing the month (from 1 to 12).}
+\item{month}{A \code{\link[base]{numeric}} (integer) or \code{\link[base]{character}} string (MM) informing the month (from 1 to 12).}
 
 \item{type}{Type of environmental layer to be downloaded. Currently
-takes 3 possible values: \code{'productivity'}, \code{'productivity'} and 
-\code{'productivity'}. See \code{details} below.}
+takes 3 possible values: \code{'productivity'}, \code{'chlorophyll'} and 
+\code{'sst'}. See \code{details} below.}
 
 \item{overwrite}{Should the layer of interest be overwritten?}
 
-\item{...}{further arguments to \code{httr::GET}}
+\item{...}{further arguments to \code{\link[httr]{GET}}.}
 }
 \value{
 A character vector containing the path where files have been saved to.
@@ -27,27 +27,27 @@ Download NOAA ERDDAP Data.
 }
 \details{
 Net Primary Productivity (NPP) data
-from http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdPPbfp18day.html
+from \url{http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdPPbfp18day.html}
 NOAA ERDDAP > griddap > Data Access Form 
-metadata in http://coastwatch.pfeg.noaa.gov/erddap/info/erdPPbfp18day/index.html 
+metadata in \url{http://coastwatch.pfeg.noaa.gov/erddap/info/erdPPbfp18day/index.html}.
 Primary Productivity, SeaWiFS and Pathfinder, Global, 1997-2010, EXPERIMENTAL (8 Day Composite)
 From 1997 - Nov - 29 to 2007 - Nov - 29
 NPP is an 8-day composite product, so every consecutive eight days should produce an independent
 time step. Note that this time series is not perfectly even. 
 Data input should be in the format of year and month.
+
 Chlorophyll-a (CHL) data
-from http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdSW1chla8day.html
+from \url{http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdSW1chla8day.html}
 NOAA ERDDAP > griddap > Data Access Form 
-metadata in http://coastwatch.pfeg.noaa.gov/erddap/info/erdSW1chla8day/index.html
+metadata in \url{http://coastwatch.pfeg.noaa.gov/erddap/info/erdSW1chla8day/index.html}
 Chlorophyll-a, Orbview-2 SeaWiFS, R2014.0, 0.1°, Global, 1997-2010 (8 Day Composite) 
 From 1997 - Nov - 29 to 2007 - Nov - 29
 Chlorophyll-a is an 8-day composite product, so every consecutive eight days should produce an independent
 time step. Note that this time series is not perfectly even. 
 Data input should be in the format of year and month.
+
 Sea Surface Temperature (SST) data
-from http://www.esrl.noaa.gov/psd/data/gridded/data.noaa.oisst.v2.highres.html
-list of individual files available from:
-http://www.esrl.noaa.gov/psd/cgi-bin/db_search/DBListFiles.pl?did=132&tid=55440&vid=2423
+from \url{http://www.esrl.noaa.gov/psd/data/gridded/data.noaa.oisst.v2.highres.html}
 Brief Description: NOAA High-resolution Blended Analysis of Daily SST and Ice. 
 Data is from Sep 1981 and is on a 1/4 deg global grid.
 Temporal Coverage: Daily values from 1981/09 to present
@@ -61,11 +61,11 @@ pathToDownloadedFile  <-  erddapDownload(year = 2006, month = 1, type = 'product
 # download productivity data for all months between 1998-2008
 library(plyr)
 dat  <-  expand.grid(year = 1998:2008, month = 1:12)
-tabOfLinks  <-  ddply(dat, .(year, month), function(x, type)  {
+tableOfPaths  <-  ddply(dat, .(year, month), function(x, type)  {
     erddapDownload(x$year, x$month, type, overwrite = TRUE)
 }, type = 'productivity')
 # check outputs
-pathToDownloadedFile; tabOfLinks
+pathToDownloadedFile; tableOfPaths
 }
 \author{
 Diego Barneche.
