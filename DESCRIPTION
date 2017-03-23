@@ -1,0 +1,19 @@
+Package: noaaErddap
+Title: SST, NPP, and Chlorophyll Data from NOAA (ERDDAP)
+Version: 0.0.0.9000
+Authors@R: person("Diego", "Barneche", , "diego.barneche@monash.edu", c("aut", "cre"))
+Description: The package provides access to to multiple environmental layers from NOAA.
+Depends: 
+	R (>= 3.3.2)
+License: GPL-2
+LazyData: true
+Imports: 
+	rappdirs,
+	httr
+Suggests: 
+	testthat,
+    knitr,
+    rmarkdown,
+	plyr
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1
