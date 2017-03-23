@@ -41,7 +41,7 @@ Then install `noaaErddap` using the following:
 
 ## Acknowledgements
 
-I'd like to thank the [rOpenSci project](https://ropensci.org/tutorials/rnoaa_tutorial.html) for providing source code via the [`rnoaa` package](https://github.com/ropensci/rnoaa) from which I based this package.
+I'd like to thank the [rOpenSci project](https://ropensci.org/) for providing source code via the [`rnoaa` package](https://github.com/ropensci/rnoaa) from which I based this package.
 
 ## Bug reporting
 
