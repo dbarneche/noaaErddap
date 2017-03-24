@@ -39,6 +39,28 @@ Then install `noaaErddap` using the following:
 `install_github('dbarneche/noaaErddap')`  
 `library(noaaErddap)`
 
+## Examples
+
+```
+library(noaaErddap)
+
+# check help page for main function
+?erddapDownload
+
+# downloads productivity data for Jan/2006
+linkToCachedFile  <-  erddapDownload(year = 2006, month = 1, type = 'productivity', overwrite = TRUE)
+library(ncdf4)
+nc_open(filename = linkToCachedFile)
+
+# downloads chlorophyll data for all months between 1998 and 2008 (takes a while)
+library(plyr)
+dat  <-  expand.grid(year = 1998:2008, month = 1:12)
+tabOfLinks  <-  ddply(dat, .(year, month), function(x, type)  {
+	data.frame(links = erddapDownload(x$year, x$month, type, overwrite = TRUE), stringsAsFactors = FALSE)
+}, type = 'chlorophyll')
+nc_open(filename = tabOfLinks$links[1])
+```
+
 ## Acknowledgements
 
 I'd like to thank the [rOpenSci project](https://ropensci.org/) for providing source code via the [`rnoaa` package](https://github.com/ropensci/rnoaa) from which I based this package.
