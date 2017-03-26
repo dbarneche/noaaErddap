@@ -54,6 +54,12 @@ Temporal Coverage: Daily values from 1981/09 to present
 Spatial Coverage: 0.25 degree latitude x 0.25 degree longitude global grid (1440x720).
 89.875S - 89.875N,0.125E to 359.875E.
 Main ref: Reynolds, Richard W., Thomas M. Smith, Chunying Liu, Dudley B. Chelton, Kenneth S. Casey, Michael G. Schlax, 2007: Daily H'igh-Resolution-Blended Analyses for Sea Surface Temperature. J. Climate, 20, 5473-5496. Reynolds, Richard W., Thomas M. Smith, Chunying Liu, Dudley B. Chelton, Kenneth S. Casey, Michael G. Schlax, 2007: Daily High-Resolution-Blended Analyses for Sea Surface Temperature. J. Climate, 20, 5473-5496.
+Note that different from NPP and CHL, SST is provided on a yearly basis.
+Thus, inputs such as \code{erddapDownload(year = 2006, month = 1, type = 'productivity')} and
+\code{erddapDownload(year = 2006, month = 10, type = 'productivity')} will yield the same layer,
+provided that the combination year-month falls within the currently supported Date limits.
+This happens because internal methods ignore the month argument to download SST layers downstream,
+also affecting the naming of the output file in the cache folder.
 }
 \examples{
 # download productivity data for Jan 2006

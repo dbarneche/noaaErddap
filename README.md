@@ -22,11 +22,11 @@ Functions to manipulate and extract environmental data need netCDF support. You'
 You can use the function `noaaErddap::dataTypeLimits` to visualise this dataset within R.
 
 
-|Dataset       |Description     |Start Date |End Date   |
-|:-------------|:---------------|:----------|:----------|
-|NPP           |8 Day Composite |1997-09-10 |2010-12-07 |
-|Chlorophyll-a |8 Day Composite |1997-09-02 |2010-12-15 |
-|SST           |1 Day Composite |1981-09-01 |Present    |
+|Dataset       |Description     |Lat Range |Lon Range   |Start Date |End Date   |
+|:-------------|:---------------|----------|------------|:----------|:----------|
+|NPP           |8 Day Composite |-90 to 90 |0 to 360    |1997-09-10 |2010-12-07 |
+|Chlorophyll-a |8 Day Composite |-90 to 90 |-180 to 180 |1997-09-02 |2010-12-15 |
+|SST           |1 Day Composite |-90 to 90 |0 to 360    |1981-09-01 |Present    |
 
 ## Installation
 
@@ -47,18 +47,32 @@ library(noaaErddap)
 # check help page for main function
 ?erddapDownload
 
-# downloads productivity data for Jan/2006
-linkToCachedFile  <-  erddapDownload(year = 2006, month = 1, type = 'productivity', overwrite = TRUE)
+# downloads chlorophyll data for Jan/2006
+linkToCachedFile  <-  erddapDownload(year = 2006, month = 1, type = 'chlorophyll', overwrite = TRUE)
 library(ncdf4)
 nc_open(filename = linkToCachedFile)
 
-# downloads chlorophyll data for all months between 1998 and 2008 (takes a while)
+# downloads productivity data for all months in 1998 (might take a few hours)
 library(plyr)
-dat  <-  expand.grid(year = 1998:2008, month = 1:12)
-tabOfLinks  <-  ddply(dat, .(year, month), function(x, type)  {
+dat  <-  data.frame(year = 1998, month = 1:12)
+nppFiles  <-  ddply(dat, .(year, month), function(x, type)  {
 	data.frame(links = erddapDownload(x$year, x$month, type, overwrite = TRUE), stringsAsFactors = FALSE)
-}, type = 'chlorophyll')
-nc_open(filename = tabOfLinks$links[1])
+}, type = 'productivity')
+
+# get longitude and latitude for NPP files
+envNc      <-  ncdf4::nc_open(filename = nppFiles[1])
+longitude  <-  envNc$var[['productivity']]$dim[[1]]$vals
+latitude   <-  envNc$var[['productivity']]$dim[[2]]$vals
+ncdf4::nc_close(envNc)
+
+# extract NPP values for a given subset of coordinates (median value within a buffer of 20 km) across all files and take the mean
+nppValues  <-  abind(lapply(nppFiles, openAndMatchNcdfData, method = 'raster', coordinates = data.frame(Longitude = c(330, 335, 340), Latitude = c(-27, -19, 0)), buffer = 2e4, fun = median, na.rm = TRUE), along = 3)
+apply(nppValues, c(1, 2), mean, na.rm = TRUE)
+
+# extract the average NPP values for the globe in 1998 (these steps are memory intensive)
+nppFiles       <-  noaaErddapFiles('productivity', full.name = TRUE)
+nppValues1998  <-  abind(lapply(nppFiles[grep('-1998.nc', nppFiles, fixed = TRUE)], openAndMatchNcdfData, method = 'ncdf4'), along = 3)
+meanNPP1998    <-  apply(nppValues1998, c(1, 2), mean, na.rm = TRUE)
 ```
 
 ## Acknowledgements

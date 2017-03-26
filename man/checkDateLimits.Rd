@@ -9,7 +9,7 @@ checkDateLimits(type, firstDay)
 \arguments{
 \item{type}{Type of environmental layer. Currently
 takes 3 possible values: \code{'productivity'}, \code{'chlorophyll'} and 
-\code{'sst'}. See Details below.}
+\code{'sst'} below.}
 
 \item{firstDay}{An object of class \code{\link[base]{Date}} of format YYYY-MM-01.}
 }

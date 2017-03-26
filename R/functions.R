@@ -9,6 +9,20 @@ noaaErddapCacheDir  <-  function() {
     rappdirs::user_cache_dir('noaaErddap')
 }
 
+#' Vector of ERDDAP datasets
+#'
+#' @title Provides a vector with all currently-stored ERDDAP datasets
+#' @param type Type of environmental layer. Currently
+#' takes 3 possible values: \code{'productivity'}, \code{'chlorophyll'} and 
+#' \code{'sst'}.
+#' @param ... further arguments to \code{\link[base]{dir}}.
+#' @details Searches cache folder to find currently stored ERDDAP datasets
+#' @author Diego Barneche.
+#' @export
+noaaErddapFiles  <-  function(type, ...) {
+    dir(path = file.path(noaaErddapCacheDir(), type), ...)
+}
+
 #' Cache folder for ERDDAP datasets
 #'
 #' @title Creates cache folder to store ERDDAP datasets
@@ -21,9 +35,15 @@ noaaErddapCacheDir  <-  function() {
 #' @seealso \code{\link[noaaErddap]{noaaErddapCacheDir}}.
 erddapLocal  <-  function(path, firstDay) {
     wrongInput  <-  !is.character(path) | class(firstDay) != 'Date'
-    if(wrongInput)
+    if (wrongInput) {
         stop('Input of wrong class')
-    file.path(path, sprintf('%s.nc', format(firstDay, format = '%B-%Y')))
+    }
+    if (basename(path) == 'sst') {
+        outFormat  <-  '%Y'
+    } else {
+        outFormat  <-  '%B-%Y'
+    }
+    file.path(path, sprintf('%s.nc', format(firstDay, format = outFormat)))
 }
 
 #' First day of the month
@@ -124,7 +144,7 @@ erddapGet  <-  function(type, filePath, firstDay, overwrite, ...) {
 #' @title Check if input falls within Date limits for currently supported ERDDAP data 
 #' @param type Type of environmental layer. Currently
 #' takes 3 possible values: \code{'productivity'}, \code{'chlorophyll'} and 
-#' \code{'sst'}. See Details below.
+#' \code{'sst'} below.
 #' @param firstDay An object of class \code{\link[base]{Date}} of format YYYY-MM-01.
 #' @details The function uses internal \code{\link[noaaErddap]{dataTypeLimits}} to
 #' evaluate whether the provided month and year in \code{\link[noaaErddap]{erddapDownload}}
@@ -203,10 +223,12 @@ dataTypeLimits  <-  function() {
 #' Spatial Coverage: 0.25 degree latitude x 0.25 degree longitude global grid (1440x720).
 #' 89.875S - 89.875N,0.125E to 359.875E.
 #' Main ref: Reynolds, Richard W., Thomas M. Smith, Chunying Liu, Dudley B. Chelton, Kenneth S. Casey, Michael G. Schlax, 2007: Daily H'igh-Resolution-Blended Analyses for Sea Surface Temperature. J. Climate, 20, 5473-5496. Reynolds, Richard W., Thomas M. Smith, Chunying Liu, Dudley B. Chelton, Kenneth S. Casey, Michael G. Schlax, 2007: Daily High-Resolution-Blended Analyses for Sea Surface Temperature. J. Climate, 20, 5473-5496.
-# Not that different from NPP and CHL, SST is provided on a yearly basis.
-# Thus, inputs such as \code{erddapDownload(year = 2006, month = 1, type = 'productivity')} and
-# \code{erddapDownload(year = 2006, month = 10, type = 'productivity')} will yield the same layer.
-# This happens because internal methods ignore the month argument to download SST layers downstream.
+#' Note that different from NPP and CHL, SST is provided on a yearly basis.
+#' Thus, inputs such as \code{erddapDownload(year = 2006, month = 1, type = 'productivity')} and
+#' \code{erddapDownload(year = 2006, month = 10, type = 'productivity')} will yield the same layer,
+#' provided that the combination year-month falls within the currently supported Date limits.
+#' This happens because internal methods ignore the month argument to download SST layers downstream,
+#' also affecting the naming of the output file in the cache folder. 
 #' @return A character vector containing the path where files have been saved to.
 #' @author Diego Barneche.
 #' @export
@@ -222,8 +244,7 @@ dataTypeLimits  <-  function() {
 #' # check outputs
 #' pathToDownloadedFile; tableOfPaths
 erddapDownload  <-  function(year, month, type, overwrite = FALSE, ...) {
-    firstDay  <-  getFirstDayOfTheMonth(month, year)
-    firstDay  <-  checkDateLimits(type, firstDay)
+    firstDay  <-  checkDateLimits(type, getFirstDayOfTheMonth(month, year))
     path      <-  file.path(noaaErddapCacheDir(), type)
     filePath  <-  erddapLocal(path, firstDay)
     if (file.exists(filePath) & !overwrite) {
@@ -233,4 +254,109 @@ erddapDownload  <-  function(year, month, type, overwrite = FALSE, ...) {
         cat('Attempting to download', filePath, '\n\n')
         erddapGet(type, filePath, firstDay, overwrite, ...)
     }
+}
+
+#' Extract NetCDF data
+#'
+#' @title Extract NetCDF data
+#' @param filePath A path to a NetCDF file.
+#' @param method Method (package) of extraction. Currently supports
+#' either \code{ncdf4} or \code{raster}. See Details below.
+#' @param dayFilter Optional. A vector containing Date objects with
+#' dates of interest.
+#' @param coordinates Optional, only used if method is \code{raster}.
+#' A data.frame containing columns \code{Longitude} and \code{Latitude}
+#' indicating the coordinates of interest.
+#' @param ... Additional arguments to \link[raster]{extract} (used internally).
+#' @details Method \code{ncdf4} uses the package to extract all layers using all coordinates.
+#' Method \code{raster} allows the user to specify arguments to the raster function
+#' \link[raster]{extract} together with a table of coordinates of interest.
+#' @return An array (longitude, latitude, time) containing variable of interest.
+#' @author Diego Barneche.
+#' @examples
+#' library(noaaErddap)
+#' library(plyr)
+#' 
+#' nppFiles  <-  noaaErddapFiles('productivity', full.name = TRUE)
+#' 
+#' # extract NPP values for a given subset of coordinates (median value within a buffer of 20 km) across all files and take the mean
+#' nppValues  <-  abind(lapply(nppFiles, openAndMatchNcdfData, method = 'raster', coordinates = data.frame(Longitude = c(330, 335, 340), #' Latitude = c(-27, -19, 0)), buffer = 2e4, fun = median, na.rm = TRUE), along = 3)
+#' apply(nppValues, c(1, 2), mean, na.rm = TRUE)
+#' 
+#' # extract the average NPP values for the globe in 1998
+#' nppValues1998  <-  abind(lapply(nppFiles[grep('-1998.nc', nppFiles, fixed = TRUE)], openAndMatchNcdfData, method = 'ncdf4'), along = 3)
+#' meanNPP1998    <-  apply(nppValues1998, c(1, 2), mean, na.rm = TRUE)
+#' @seealso \code{\link[noaaErddap]{noaaErddapFiles}}.
+#' export
+openAndMatchNcdfData  <-  function(filePath, method = c('ncdf4', 'raster'), dayFilter, coordinates, ...) {
+    envNc   <-  ncdf4::nc_open(filename = filePath)
+    type    <-  typeFromPath(filePath = filePath)
+    dates   <-  transformDateForLayer(envNc, type)
+
+    if (!missing(dayFilter)) {
+        filtered  <-  which(dates %in% dayFilter)
+        dates     <-  dates[filtered]
+    } else {
+        filtered  <-  seq_along(dates)
+    }
+
+    switch(match.arg(method),
+        'ncdf4' = {
+            env  <-  ncdf4::ncvar_get(nc = envNc, varid = type)
+            ncdf4::nc_close(envNc)
+            env[, , filtered]
+        },
+        'raster' = {
+            if (missing(coordinates)) {
+                stop('method raster requires the user to provide a data.frame for the additional "coordinates" argument; see ?openAndMatchNcdfData')
+            }
+            ncdf4::nc_close(envNc)
+            slices  <-  data.frame(dates = dates, band = filtered, stringsAsFactors = FALSE)
+            abind::abind(plyr::dlply(slices, c('dates'), .fun = extractDataWithRaster, filePath = filePath, coordinates = coordinates, ...), along = 3)
+        }
+    )
+}
+
+#' Type of ERDDAP datasets
+#'
+#' @title Extracts type of ERDDAP datasets based on
+#' file path.
+#' @param filePath A path to a NetCDF file.
+#' @return A character vector containing the type of variable.
+#' @author Diego Barneche.
+typeFromPath  <-  function(filePath) {
+    pieces  <-  strsplit(filePath, '/')[[1]]
+    pieces[(length(pieces)-1)]
+}
+
+#' Transform NetCDF dates into human dates
+#'
+#' @title Transform NetCDF dates into human dates
+#' @param envNc A file of class \code{\link[ncdf4]ncdf4}.
+#' @param type Type of environmental layer. Currently
+#' takes 3 possible values: \code{'productivity'}, \code{'chlorophyll'} and 
+#' \code{'sst'}.
+#' @return A vector of class \code{\link[base]{Date}} of format YYYY-MM-DD.
+#' @author Diego Barneche.
+#' @export
+transformDateForLayer  <-  function(envNc, type) {
+    layers  <-  sapply(envNc$var[[type]]$dim, function(x)x$name)
+    as.Date(RNetCDF::utcal.nc(envNc$var[[type]]$dim[[which(layers == 'time')]]$units, envNc$var[[type]]$dim[[which(layers == 'time')]]$vals, type = 's'))
+}
+
+#' Transform NetCDF dates into human dates
+#'
+#' @title Transform NetCDF dates into human dates
+#' @param slices A data.frame frame with column \code{band} indicating
+#' which layer is to be extracted.
+#' @param filePath A path to a NetCDF file.
+#' @param coordinates A data.frame containing columns \code{Longitude} and \code{Latitude}
+#' indicating the coordinates of interest.
+#' @param ... Additional arguments to \link[raster]{extract}.
+#' @return A matrix (longitude, latitude, time) containing variable of interest.
+#' @author Diego Barneche.
+extractDataWithRaster  <-  function(slices, filePath, coordinates, ...) {
+    envNc    <-  raster::raster(filePath, band = slices$band)
+    envVals  <-  raster::extract(envNc, coordinates, ...)
+    tapply(envVals, list(coordinates$Longitude, coordinates$Latitude), identity)
 }

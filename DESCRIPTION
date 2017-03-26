@@ -14,11 +14,9 @@ LazyData: true
 Imports: 
 	rappdirs,
 	httr,
-	zoo
-Suggests: 
-	testthat,
-    knitr,
-    rmarkdown,
-	plyr
-VignetteBuilder: knitr
+	zoo,
+	ncdf4,
+	raster,
+	RNetCDF,
+	abind
 RoxygenNote: 6.0.1
