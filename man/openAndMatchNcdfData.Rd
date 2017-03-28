@@ -49,7 +49,6 @@ meanNPP1998    <-  apply(nppValues1998, c(1, 2), mean, na.rm = TRUE)
 }
 \seealso{
 \code{\link[noaaErddap]{noaaErddapFiles}}.
-export
 }
 \author{
 Diego Barneche.

@@ -231,7 +231,6 @@ dataTypeLimits  <-  function() {
 #' also affecting the naming of the output file in the cache folder. 
 #' @return A character vector containing the path where files have been saved to.
 #' @author Diego Barneche.
-#' @export
 #' @examples
 #' # download productivity data for Jan 2006
 #' pathToDownloadedFile  <-  erddapDownload(year = 2006, month = 1, type = 'productivity')
@@ -243,6 +242,7 @@ dataTypeLimits  <-  function() {
 #' }, type = 'productivity')
 #' # check outputs
 #' pathToDownloadedFile; tableOfPaths
+#' @export
 erddapDownload  <-  function(year, month, type, overwrite = FALSE, ...) {
     firstDay  <-  checkDateLimits(type, getFirstDayOfTheMonth(month, year))
     path      <-  file.path(noaaErddapCacheDir(), type)
@@ -287,7 +287,7 @@ erddapDownload  <-  function(year, month, type, overwrite = FALSE, ...) {
 #' nppValues1998  <-  abind(lapply(nppFiles[grep('-1998.nc', nppFiles, fixed = TRUE)], openAndMatchNcdfData, method = 'ncdf4'), along = 3)
 #' meanNPP1998    <-  apply(nppValues1998, c(1, 2), mean, na.rm = TRUE)
 #' @seealso \code{\link[noaaErddap]{noaaErddapFiles}}.
-#' export
+#' @export
 openAndMatchNcdfData  <-  function(filePath, method = c('ncdf4', 'raster'), dayFilter, coordinates, ...) {
     envNc   <-  ncdf4::nc_open(filename = filePath)
     type    <-  typeFromPath(filePath = filePath)
