@@ -40,11 +40,11 @@ library(plyr)
 nppFiles  <-  noaaErddapFiles('productivity', full.name = TRUE)
 
 # extract NPP values for a given subset of coordinates (median value within a buffer of 20 km) across all files and take the mean
-nppValues  <-  abind(lapply(nppFiles, openAndMatchNcdfData, method = 'raster', coordinates = data.frame(Longitude = c(330, 335, 340), #' Latitude = c(-27, -19, 0)), buffer = 2e4, fun = median, na.rm = TRUE), along = 3)
+nppValues  <-  abind::abind(lapply(nppFiles, openAndMatchNcdfData, method = 'raster', coordinates = data.frame(Longitude = c(330, 335, 340), #' Latitude = c(-27, -19, 0)), buffer = 2e4, fun = median, na.rm = TRUE), along = 3)
 apply(nppValues, c(1, 2), mean, na.rm = TRUE)
 
 # extract the average NPP values for the globe in 1998
-nppValues1998  <-  abind(lapply(nppFiles[grep('-1998.nc', nppFiles, fixed = TRUE)], openAndMatchNcdfData, method = 'ncdf4'), along = 3)
+nppValues1998  <-  abind::abind(lapply(nppFiles[grep('-1998.nc', nppFiles, fixed = TRUE)], openAndMatchNcdfData, method = 'ncdf4'), along = 3)
 meanNPP1998    <-  apply(nppValues1998, c(1, 2), mean, na.rm = TRUE)
 }
 \seealso{
