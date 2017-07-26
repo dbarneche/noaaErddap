@@ -55,7 +55,7 @@ ncdf4::nc_open(filename = linkToCachedFile)
 # downloads productivity data for all months in 1998 (might take a few hours)
 library(plyr)
 dat  <-  data.frame(year = 1998, month = 1:12)
-nppFiles  <-  plyr::ddply(dat, .(year, month), function (x, type)  {
+nppFiles  <-  plyr::ddply(dat, .(year, month), function (x, type) {
 	data.frame(links = noaaErddap::erddapDownload(x$year, x$month, type, overwrite = TRUE), stringsAsFactors = FALSE)
 }, type = 'productivity')
 
@@ -69,6 +69,7 @@ ncdf4::nc_close(envNc)
 nppFiles  <-  noaaErddap::noaaErddapFiles('productivity', full.name = TRUE)
 
 # extract NPP values for a given subset of coordinates (median value within a buffer of 20 km) across all files and take the mean
+library(raster)
 library(abind)
 nppValues  <-  abind::abind(lapply(nppFiles, noaaErddap::openAndMatchNcdfData, method = 'raster', coordinates = data.frame(Longitude = c(330, 335, 340), Latitude = c(-27, -19, 0)), buffer = 2e4, fun = median, na.rm = TRUE), along = 3)
 apply(nppValues, c(1, 2), mean, na.rm = TRUE)
