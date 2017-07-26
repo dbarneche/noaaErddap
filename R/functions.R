@@ -5,7 +5,7 @@
 #' a cache folder to store ERDDAP datasets
 #' @author Diego Barneche.
 #' @seealso \code{\link[noaaErddap]{erddapLocal}}.
-noaaErddapCacheDir  <-  function() {
+noaaErddapCacheDir  <-  function () {
     rappdirs::user_cache_dir('noaaErddap')
 }
 
@@ -19,7 +19,7 @@ noaaErddapCacheDir  <-  function() {
 #' @details Searches cache folder to find currently stored ERDDAP datasets
 #' @author Diego Barneche.
 #' @export
-noaaErddapFiles  <-  function(type, ...) {
+noaaErddapFiles  <-  function (type, ...) {
     dir(path = file.path(noaaErddapCacheDir(), type), ...)
 }
 
@@ -33,7 +33,7 @@ noaaErddapFiles  <-  function(type, ...) {
 #' to create a full path in cache folder to store ERDDAP datasets.
 #' @author Diego Barneche.
 #' @seealso \code{\link[noaaErddap]{noaaErddapCacheDir}}.
-erddapLocal  <-  function(path, firstDay) {
+erddapLocal  <-  function (path, firstDay) {
     wrongInput  <-  !is.character(path) | class(firstDay) != 'Date'
     if (wrongInput) {
         stop('Input of wrong class')
@@ -55,7 +55,7 @@ erddapLocal  <-  function(path, firstDay) {
 #' @author Diego Barneche.
 #' @seealso \code{\link[noaaErddap]{findLastDayOfTheMonth}}.
 #' @export
-getFirstDayOfTheMonth  <-  function(month, year) {
+getFirstDayOfTheMonth  <-  function (month, year) {
     as.Date(paste(year, month, '01', sep = '-'))
 }
 
@@ -67,7 +67,7 @@ getFirstDayOfTheMonth  <-  function(month, year) {
 #' @author Diego Barneche, code adapted from \href{https://www.r-bloggers.com/find-the-last-day-of-the-month/}{R-Bloggers}.
 #' @seealso \code{\link[noaaErddap]{getFirstDayOfTheMonth}}.
 #' @export
-findLastDayOfTheMonth  <-  function(myDate) {
+findLastDayOfTheMonth  <-  function (myDate) {
     myDate        <-  as.POSIXct(as.character(myDate))
     dateLt        <-  as.POSIXlt(myDate)
     # add a month, then subtract a day
@@ -89,7 +89,7 @@ findLastDayOfTheMonth  <-  function(myDate) {
 #' @return An object of class \code{\link[base]{character}}.
 #' @author Diego Barneche.
 #' @seealso \code{\link[noaaErddap]{erddapGet}}.
-productivityBaseLink  <-  function(firstDay) {
+productivityBaseLink  <-  function (firstDay) {
     lastDay  <-  findLastDayOfTheMonth(firstDay)
     sprintf('http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdPPbfp18day.nc?productivity[(%s):1:(%s)][(0.0):1:(0.0)][(-90.0):1:(90.0)][(0.0):1:(360.0)]', firstDay, lastDay)
 }
@@ -101,7 +101,7 @@ productivityBaseLink  <-  function(firstDay) {
 #' @return An object of class \code{\link[base]{character}}.
 #' @author Diego Barneche.
 #' @seealso \code{\link[noaaErddap]{erddapGet}}.
-chlorophyllBaseLink  <-  function(firstDay) {
+chlorophyllBaseLink  <-  function (firstDay) {
     lastDay  <-  findLastDayOfTheMonth(firstDay)
     sprintf('http://coastwatch.pfeg.noaa.gov/erddap/griddap/erdSW1chla8day.nc?chlorophyll[(%sT12:00:00Z):1:(%sT12:00:00Z)][(89.95834):1:(-89.95834)][(-179.9583):1:(179.9584)]', firstDay, lastDay)
 }
@@ -113,7 +113,7 @@ chlorophyllBaseLink  <-  function(firstDay) {
 #' @return An object of class \code{\link[base]{character}}.
 #' @author Diego Barneche.
 #' @seealso \code{\link[noaaErddap]{erddapGet}}.
-sstBaseLink  <-  function(firstDay) {
+sstBaseLink  <-  function (firstDay) {
     year  <-  format(firstDay, format = '%Y')
     sprintf('ftp://ftp.cdc.noaa.gov/Datasets/noaa.oisst.v2.highres/sst.day.mean.%s.v2.nc', year)
 }
@@ -131,7 +131,7 @@ sstBaseLink  <-  function(firstDay) {
 #' @return A character vector containing the path where files have been saved to.
 #' @author Diego Barneche.
 #' @seealso \code{\link[noaaErddap]{erddapDownload}}, \code{\link[noaaErddap]{noaaErddapCacheDir}}.
-erddapGet  <-  function(type, filePath, firstDay, overwrite, ...) {
+erddapGet  <-  function (type, filePath, firstDay, overwrite, ...) {
     dir.create(dirname(filePath), showWarnings = FALSE, recursive = TRUE)
     typeLink  <-  get(paste0(type, 'BaseLink'))(firstDay)
     res       <-  httr::GET(typeLink, httr::write_disk(filePath, overwrite = overwrite), httr::progress(), ...)
@@ -155,7 +155,7 @@ erddapGet  <-  function(type, filePath, firstDay, overwrite, ...) {
 #' currently supported ERDDAP data 
 #' @author Diego Barneche.
 #' @seealso \code{\link[noaaErddap]{dataTypeLimits}}, \code{\link[noaaErddap]{erddapDownload}}.
-checkDateLimits  <-  function(type, firstDay) {
+checkDateLimits  <-  function (type, firstDay) {
     limits      <-  dataTypeLimits()
     limits      <-  limits[limits$type == type, ]
     strYearMon  <-  lapply(c(limits$start, limits$end, firstDay), zoo::as.yearmon)
@@ -177,7 +177,7 @@ checkDateLimits  <-  function(type, firstDay) {
 #' currently supported ERDDAP data 
 #' @author Diego Barneche.
 #' @export
-dataTypeLimits  <-  function() {
+dataTypeLimits  <-  function () {
     data.frame(type   =  c('productivity', 'chlorophyll', 'sst'),
                start  =  as.Date(c('1997-09-10', '1997-09-02', '1981-09-01')),
                end    =  c(as.Date(c('2010-12-07', '2010-12-15')), as.Date(paste0(format(Sys.Date(), format = '%Y-%m'), '-01'))),
@@ -237,13 +237,13 @@ dataTypeLimits  <-  function() {
 #' # download productivity data for all months between 1998-2008
 #' library(plyr)
 #' dat  <-  expand.grid(year = 1998:2008, month = 1:12)
-#' tableOfPaths  <-  ddply(dat, .(year, month), function(x, type)  {
+#' tableOfPaths  <-  ddply(dat, .(year, month), function (x, type) {
 #'     erddapDownload(x$year, x$month, type, overwrite = TRUE)
 #' }, type = 'productivity')
 #' # check outputs
 #' pathToDownloadedFile; tableOfPaths
 #' @export
-erddapDownload  <-  function(year, month, type, overwrite = FALSE, ...) {
+erddapDownload  <-  function (year, month, type, overwrite = FALSE, ...) {
     firstDay  <-  checkDateLimits(type, getFirstDayOfTheMonth(month, year))
     path      <-  file.path(noaaErddapCacheDir(), type)
     filePath  <-  erddapLocal(path, firstDay)
@@ -288,7 +288,7 @@ erddapDownload  <-  function(year, month, type, overwrite = FALSE, ...) {
 #' meanNPP1998    <-  apply(nppValues1998, c(1, 2), mean, na.rm = TRUE)
 #' @seealso \code{\link[noaaErddap]{noaaErddapFiles}}.
 #' @export
-openAndMatchNcdfData  <-  function(filePath, method = c('ncdf4', 'raster'), dayFilter, coordinates, ...) {
+openAndMatchNcdfData  <-  function (filePath, method = c('ncdf4', 'raster'), dayFilter, coordinates, ...) {
     envNc   <-  ncdf4::nc_open(filename = filePath)
     type    <-  typeFromPath(filePath = filePath)
     dates   <-  transformDateForLayer(envNc, type)
@@ -324,7 +324,7 @@ openAndMatchNcdfData  <-  function(filePath, method = c('ncdf4', 'raster'), dayF
 #' @param filePath A path to a NetCDF file.
 #' @return A character vector containing the type of variable.
 #' @author Diego Barneche.
-typeFromPath  <-  function(filePath) {
+typeFromPath  <-  function (filePath) {
     pieces  <-  strsplit(filePath, '/')[[1]]
     pieces[(length(pieces)-1)]
 }
@@ -339,8 +339,8 @@ typeFromPath  <-  function(filePath) {
 #' @return A vector of class \code{\link[base]{Date}} of format YYYY-MM-DD.
 #' @author Diego Barneche.
 #' @export
-transformDateForLayer  <-  function(envNc, type) {
-    layers  <-  sapply(envNc$var[[type]]$dim, function(x)x$name)
+transformDateForLayer  <-  function (envNc, type) {
+    layers  <-  sapply(envNc$var[[type]]$dim, function (x)x$name)
     as.Date(RNetCDF::utcal.nc(envNc$var[[type]]$dim[[which(layers == 'time')]]$units, envNc$var[[type]]$dim[[which(layers == 'time')]]$vals, type = 's'))
 }
 
@@ -355,7 +355,7 @@ transformDateForLayer  <-  function(envNc, type) {
 #' @param ... Additional arguments to \link[raster]{extract}.
 #' @return A matrix (longitude, latitude, time) containing variable of interest.
 #' @author Diego Barneche.
-extractDataWithRaster  <-  function(slices, filePath, coordinates, ...) {
+extractDataWithRaster  <-  function (slices, filePath, coordinates, ...) {
     envNc    <-  raster::raster(filePath, band = slices$band)
     envVals  <-  raster::extract(envNc, coordinates, ...)
     tapply(envVals, list(coordinates$Longitude, coordinates$Latitude), identity)
