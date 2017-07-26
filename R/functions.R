@@ -266,7 +266,7 @@ erddapDownload  <-  function(year, month, type, overwrite = FALSE, ...) {
 #' dates of interest.
 #' @param coordinates Optional, only used if method is \code{raster}.
 #' A data.frame containing columns \code{Longitude} and \code{Latitude}
-#' indicating the coordinates of interest.
+#' (in this order) indicating the coordinates of interest.
 #' @param ... Additional arguments to \link[raster]{extract} (used internally).
 #' @details Method \code{ncdf4} uses the package to extract all layers using all coordinates.
 #' Method \code{raster} allows the user to specify arguments to the raster function
@@ -312,7 +312,7 @@ openAndMatchNcdfData  <-  function(filePath, method = c('ncdf4', 'raster'), dayF
             }
             ncdf4::nc_close(envNc)
             slices  <-  data.frame(dates = dates, band = filtered, stringsAsFactors = FALSE)
-            abind::abind(plyr::dlply(slices, c('dates'), .fun = extractDataWithRaster, filePath = filePath, coordinates = coordinates, ...), along = 3)
+            abind::abind(plyr::dlply(slices, c('dates'), .fun = extractDataWithRaster, filePath = filePath, coordinates = coordinates[, c('Longitude', 'Latitude')], ...), along = 3)
         }
     )
 }

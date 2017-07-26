@@ -18,7 +18,7 @@ dates of interest.}
 
 \item{coordinates}{Optional, only used if method is \code{raster}.
 A data.frame containing columns \code{Longitude} and \code{Latitude}
-indicating the coordinates of interest.}
+(in this order) indicating the coordinates of interest.}
 
 \item{...}{Additional arguments to \link[raster]{extract} (used internally).}
 }
