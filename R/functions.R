@@ -134,7 +134,7 @@ sstBaseLink  <-  function(firstDay) {
 erddapGet  <-  function(type, filePath, firstDay, overwrite, ...) {
     dir.create(dirname(filePath), showWarnings = FALSE, recursive = TRUE)
     typeLink  <-  get(paste0(type, 'BaseLink'))(firstDay)
-    res       <-  httr::GET(typeLink, httr::write_disk(filePath, overwrite = overwrite), ...)
+    res       <-  httr::GET(typeLink, httr::write_disk(filePath, overwrite = overwrite), httr::progress(), ...)
     httr::stop_for_status(res)
     res$request$output$path
 }
