@@ -251,7 +251,7 @@ erddapDownload  <-  function (year, month, type, overwrite = FALSE, ...) {
         warning(sprintf('File %s already exists, please set "overwrite = TRUE" if you want to overwrite existing file', filePath))
         filePath
     } else if (file.exists(filePath) & overwrite | !file.exists(filePath)) {
-        cat('Attempting to download', filePath, '\n\n')
+        message('Attempting to download', filePath, '\n\n')
         erddapGet(type, filePath, firstDay, overwrite, ...)
     }
 }

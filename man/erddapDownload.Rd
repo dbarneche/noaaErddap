@@ -67,7 +67,7 @@ pathToDownloadedFile  <-  erddapDownload(year = 2006, month = 1, type = 'product
 # download productivity data for all months between 1998-2008
 library(plyr)
 dat  <-  expand.grid(year = 1998:2008, month = 1:12)
-tableOfPaths  <-  ddply(dat, .(year, month), function (x, type)  {
+tableOfPaths  <-  ddply(dat, .(year, month), function (x, type) {
     erddapDownload(x$year, x$month, type, overwrite = TRUE)
 }, type = 'productivity')
 # check outputs
