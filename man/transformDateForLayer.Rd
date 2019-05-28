@@ -7,7 +7,7 @@
 transformDateForLayer(envNc, type)
 }
 \arguments{
-\item{envNc}{A file of class \code{\link[ncdf4]ncdf4}.}
+\item{envNc}{A file of class \code{\link[ncdf4]{ncdf4}}.}
 
 \item{type}{Type of environmental layer. Currently
 takes 3 possible values: \code{'productivity'}, \code{'chlorophyll'} and 

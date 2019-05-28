@@ -332,7 +332,7 @@ typeFromPath  <-  function (filePath) {
 #' Transform NetCDF dates into human dates
 #'
 #' @title Transform NetCDF dates into human dates
-#' @param envNc A file of class \code{\link[ncdf4]ncdf4}.
+#' @param envNc A file of class \code{\link[ncdf4]{ncdf4}}.
 #' @param type Type of environmental layer. Currently
 #' takes 3 possible values: \code{'productivity'}, \code{'chlorophyll'} and 
 #' \code{'sst'}.
