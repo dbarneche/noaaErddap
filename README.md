@@ -1,9 +1,10 @@
 noaaErddap
 ==========
 
-
-
 [![Build Status](https://api.travis-ci.org/dbarneche/noaaErddap.png?branch=master)](https://travis-ci.org/dbarneche/noaaErddap)
+[![lifecycle](https://img.shields.io/badge/lifecycle-retired-orange.svg)](https://www.tidyverse.org/lifecycle/#retired)
+
+**WARNING:** Please note, this package was experimental and is no longer being developed. If you decide to use it, please be aware that no support is given. I recommend using the rOpenSci [rerddap](https://docs.ropensci.org/rerddap/) instead.
 
 `noaaErddap` is an R interface to three NOAA marine data sources. The package is concerned with downloading the data and providing two methods to extract methods given a `data.frame` of geographical coordinates.
 
@@ -85,4 +86,4 @@ I'd like to thank the [rOpenSci project](https://ropensci.org/) for providing so
 
 ## Bug reporting
 
-* Please [report any issues or bugs](https://github.com/dbarneche/noaaErddap/issues).
+Please [report any issues or bugs](https://github.com/dbarneche/noaaErddap/issues).
